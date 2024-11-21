@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3  # v2에서 v3로 업데이트
       
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
@@ -17,6 +17,16 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /opt/bitnami/apache2/htdocs
-            sudo git pull origin main
+            # 처음 배포시에만 필요한 git clone
+            if [ ! -d "/opt/bitnami/apache2/htdocs/.git" ]; then
+              # 새로운 htdocs 생성 및 권한 설정
+              sudo mkdir -p /opt/bitnami/apache2/htdocs
+              sudo chown -R $USER:daemon /opt/bitnami/apache2/htdocs
+              # git clone
+              git clone https://github.com/sootopia/lightsail-cicd.git /opt/bitnami/apache2/htdocs
+            else
+              # 이미 저장소가 있는 경우 pull
+              cd /opt/bitnami/apache2/htdocs
+              git pull origin main
+            fi
             sudo /opt/bitnami/ctlscript.sh restart apache
