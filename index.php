@@ -9,6 +9,7 @@
 
 <body>
     <h1>Hello!</h1>
+    <p>Bitnami + LAMP CI/CD 테스트중입니다.</p>
 </body>
 
 </html>
